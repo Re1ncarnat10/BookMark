@@ -35,15 +35,16 @@ export async function updateBook(id, bookData) {
     const response = await fetch(`${API_URL}/Books/${id}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'accept': '*/*'
         },
         body: JSON.stringify(bookData)
     });
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const updatedBook = await response.json();
-    return updatedBook;
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
 }
 export async function deleteBook(id) {
     const response = await fetch(`${API_URL}/Books/${id}`, {
@@ -55,7 +56,8 @@ export async function deleteBook(id) {
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return response.json();
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
 }
 export async function copyBook(id) {
     const response = await fetch(`${API_URL}/Books/copy/${id}`, {
