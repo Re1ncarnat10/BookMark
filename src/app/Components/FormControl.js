@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FormControl = ({ label, value, onChange, type = 'text', required = false }) => {
+const FormControl = ({ label, value, onChange, type = 'text', required = false, disabled= false, max }) => {
     const labelSpans = label.split('').map((char, index) => (
         <span key={index} style={{ transitionDelay: `${index * 50}ms` }}>{char}</span>
     ));
@@ -12,6 +12,8 @@ const FormControl = ({ label, value, onChange, type = 'text', required = false }
                 value={value}
                 onChange={onChange}
                 required={required}
+                disabled={disabled}
+                max={max}
             />
             <label>
                 {labelSpans}

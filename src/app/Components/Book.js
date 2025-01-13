@@ -1,29 +1,73 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-
-const Book = ({ book }) => {
+const Book = ({ book, onGenreClick }) => {
     const router = useRouter();
+    const [rating, setRating] = useState(book.rating || 0);
+    const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
+    let hoverTimeout;
 
     const handleCardClick = () => {
         router.push(`/BookEditor?id=${book.id}`);
     };
 
+    const handleStarClick = (newRating) => {
+        setRating(newRating);
+    };
+
+    const renderStars = (rating) => {
+        const stars = [];
+        for (let i = 1; i <= 10; i++) {
+            stars.push(
+                <svg
+                    key={i}
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="svg"
+                    onClick={() => handleStarClick(i)}
+                    style={{ cursor: 'pointer' }}
+                >
+                    <path
+                        d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.869 1.4-8.168L.466 9.21l8.2-1.192z"
+                        fill={i <= rating ? 'gold' : 'gray'}
+                    ></path>
+                </svg>
+            );
+        }
+        return stars;
+    };
+
+    const handleMouseEnter = () => {
+        hoverTimeout = setTimeout(() => {
+            setIsDescriptionVisible(true);
+        }, 5000);
+    };
+
+    const handleMouseLeave = () => {
+        clearTimeout(hoverTimeout);
+        setIsDescriptionVisible(false);
+    };
+
     return (
         <div className="card">
-            <div className="image">
-                <img src={book.image} alt={book.title} className="image" />
+            <div className="image" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {isDescriptionVisible ? (
+                    <div className="description">
+                        <p>{book.description}</p>
+                    </div>
+                ) : (
+                    <img src={book.image} alt={book.title} className="image" />
+                )}
             </div>
-            <div className="title">{book.title}</div>
+            <div className="title">
+                {book.title}<br/><span className="author">by {book.author}</span></div>
             <div className="love">
-                <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="svg">
-                    <path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"></path>
-                </svg>
-                <span>{book.rating || 'Not rated yet'}</span>
+                {renderStars(rating)}
+                <span>{rating}/10</span>
             </div>
             <div className="category">
                 {book.genre.split(',').map((genre, index) => (
-                    <button key={index} className="button">{genre.trim()}</button>
+                    <button key={index} className="button" onClick={() => onGenreClick(genre.trim())}>{genre.trim()}</button>
                 ))}
                 <button className="button">{book.year}</button>
             </div>

@@ -181,6 +181,7 @@ const BookEditor = () => {
                             type="number"
                             required
                             disabled={!isEditable}
+                            max="10"
                         />
                         <FormControl
                             label="Status"

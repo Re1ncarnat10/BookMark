@@ -51,12 +51,19 @@ const Home = () => {
         setFilteredBooks(result);
     };
 
+    const handleGenreClick = (genre) => {
+        setFilter('genre');
+        setSearchTerm(genre);
+        const result = books.filter(book => book.genre.toLowerCase().includes(genre.toLowerCase()));
+        setFilteredBooks(result);
+    };
+
     return (
         <div className="home flex flex-col items-center justify-center ">
             <div className="fixed top-10 left-1/2 transform -translate-x-1/2 w-auto bg-transparent flex flex-col items-center px-4 grid-flow-col z-50">
                 {isModalOpen && (
                     <dialog id="my_modal_1" className="modal" open>
-                    <div className="modal-box">
+                        <div className="modal-box">
                             <h3 className="font-bold text-lg">Hello!</h3>
                             <p className="py-4">Login successful. Welcome!</p>
                             <div className="modal-action">
@@ -96,6 +103,7 @@ const Home = () => {
                             {filter !== 'year' && filter !== 'rating' && (
                                 <input className="input input-bordered join-item w-full"
                                        placeholder="Search"
+                                       value={searchTerm}
                                        onChange={handleSearchChange}/>
                             )}
                         </div>
@@ -115,7 +123,7 @@ const Home = () => {
             </div>
             <div className="container-with-book-cards w-full flex flex-wrap justify-start items-center align-stretch pl-8 pr-8 overflow-y-auto mt-20 h-full">
                 {filteredBooks.map((book) => (
-                    <BookCard key={book.id} book={book} />
+                    <BookCard key={book.id} book={book} onGenreClick={handleGenreClick} />
                 ))}
             </div>
         </div>
