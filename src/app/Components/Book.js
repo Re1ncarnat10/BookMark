@@ -49,8 +49,8 @@ const Book = ({ book, onGenreClick }) => {
     };
 
     return (
-        <div className="card">
-            <div className="image" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div className="card  max-h-[688px]">
+            <div className="image  " onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {isDescriptionVisible ? (
                     <div className="description">
                         <p>{book.description}</p>

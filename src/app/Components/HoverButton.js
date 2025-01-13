@@ -1,5 +1,4 @@
 import React from 'react';
-import './HoverButton.css';
 
 const HoverButton = ({ onClick }) => (
     <button

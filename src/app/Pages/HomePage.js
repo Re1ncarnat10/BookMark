@@ -59,7 +59,8 @@ const Home = () => {
     };
 
     return (
-        <div className="home flex flex-col items-center justify-center ">
+
+        <div className="home flex flex-col items-center justify-center h-screen bg-base-300">
             <div className="fixed top-10 left-1/2 transform -translate-x-1/2 w-auto bg-transparent flex flex-col items-center px-4 grid-flow-col z-50">
                 {isModalOpen && (
                     <dialog id="my_modal_1" className="modal" open>
