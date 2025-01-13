@@ -1,25 +1,35 @@
 import React from 'react';
-const Book = ({  book }) => {
+import { useRouter } from 'next/navigation';
+
+
+const Book = ({ book }) => {
+    const router = useRouter();
+
+    const handleCardClick = () => {
+        router.push(`/BookEditor?id=${book.id}`);
+    };
 
     return (
-        <div key={book.id} className="card w-96 h-160 overflow-hidden bg-base-200 shadow-2xl  rounded-3xl ms-4 mt-8">
-            <figure><img className="h-80" src={book.image} alt={book.title}/></figure>
-            <div className="card-body color-primary bg-accent h-80">
-                <h2 className="card-title">{book.title}</h2>
-                <p className="card-text">{book.description}</p>
-                <p className="card-text">{book.genre}</p>
-                <p className="card-text">{book.year}</p>
-                <p className="card-text"><strong>Rating:
-                </strong>{book.rating || 'Not rated yet'}</p>
+        <div className="card">
+            <div className="image">
+                <img src={book.image} alt={book.title} className="image" />
             </div>
+            <div className="title">{book.title}</div>
+            <div className="love">
+                <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="svg">
+                    <path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"></path>
+                </svg>
+                <span>{book.rating || 'Not rated yet'}</span>
+            </div>
+            <div className="category">
+                {book.genre.split(',').map((genre, index) => (
+                    <button key={index} className="button">{genre.trim()}</button>
+                ))}
+                <button className="button">{book.year}</button>
+            </div>
+            <button className="action" onClick={handleCardClick}>Details</button>
         </div>
     );
 };
 
 export default Book;
-// "title": "string",
-//   "author": "string",
-//   "genre": "string",
-//   "year": 0,
-//   "description": "string",
-//   "rating": 0,

@@ -10,9 +10,6 @@ const Home = () => {
     const [filter, setFilter] = useState('title');
     const [books, setBooks] = useState([]);
     const [filteredBooks, setFilteredBooks] = useState([]);
-    const [minPrice, setMinPrice] = useState(0);
-    const [maxPrice, setMaxPrice] = useState(Infinity);
-    const [isPriceFilter, setIsPriceFilter] = useState(false);
     const [minYear, setMinYear] = useState(0);
     const [maxYear, setMaxYear] = useState(new Date().getFullYear());
     const [minRating, setMinRating] = useState(0);
@@ -34,7 +31,6 @@ const Home = () => {
     const handleFilterChange = (event) => {
         setSelectedFilter(event.target.value);
         setFilter(event.target.value);
-        setIsPriceFilter(event.target.value === 'price');
     };
 
     const handleSearch = () => {
@@ -42,10 +38,6 @@ const Home = () => {
 
         if (searchTerm !== '') {
             result = result.filter(book => book[filter].toString().toLowerCase().includes(searchTerm.toLowerCase()));
-        }
-
-        if (isPriceFilter) {
-            result = result.filter(book => book.price >= minPrice && book.price <= maxPrice);
         }
 
         if (filter === 'year') {
@@ -60,10 +52,11 @@ const Home = () => {
     };
 
     return (
-        <div className="home flex flex-col items-center justify-center h-256">
-            <div className="search-container fixed ">                {isModalOpen && (
-                <dialog id="my_modal_1" className="modal" open>
-                <div className="modal-box">
+        <div className="home flex flex-col items-center justify-center ">
+            <div className="fixed top-10 left-1/2 transform -translate-x-1/2 w-auto bg-transparent flex flex-col items-center px-4 grid-flow-col z-50">
+                {isModalOpen && (
+                    <dialog id="my_modal_1" className="modal" open>
+                    <div className="modal-box">
                             <h3 className="font-bold text-lg">Hello!</h3>
                             <p className="py-4">Login successful. Welcome!</p>
                             <div className="modal-action">
@@ -74,24 +67,14 @@ const Home = () => {
                         </div>
                     </dialog>
                 )}
-                <form className="join mt-8 w-5/6" onSubmit={(e) => {
+                <form className="join mt-8 w-full max-w-4xl mx-auto grid-flow-col" onSubmit={(e) => {
                     e.preventDefault();
                     handleSearch();
                 }}>
-                    <div className="w-full">
-                        <div>
-                            {isPriceFilter && (
-                                <div>
-                                    <input type="number" className="input input-bordered join-item w-1/2"
-                                           placeholder="Min Price"
-                                           onChange={event => setMinPrice(event.target.value)}/>
-                                    <input type="number" className="input input-bordered join-item w-1/2"
-                                           placeholder="Max Price"
-                                           onChange={event => setMaxPrice(event.target.value)}/>
-                                </div>
-                            )}
+                    <div className="w-full flex grid-flow-col">
+                        <div className="flex-grow">
                             {filter === 'year' && (
-                                <div>
+                                <div className="flex flex-wrap">
                                     <input type="number" className="input input-bordered join-item w-1/2"
                                            placeholder="Min Year"
                                            onChange={event => setMinYear(event.target.value)}/>
@@ -101,7 +84,7 @@ const Home = () => {
                                 </div>
                             )}
                             {filter === 'rating' && (
-                                <div>
+                                <div className="flex flex-wrap">
                                     <input type="number" className="input input-bordered join-item w-1/2"
                                            placeholder="Min Rating"
                                            onChange={event => setMinRating(event.target.value)}/>
@@ -110,28 +93,27 @@ const Home = () => {
                                            onChange={event => setMaxRating(event.target.value)}/>
                                 </div>
                             )}
-                            {!isPriceFilter && filter !== 'year' && filter !== 'rating' && (
+                            {filter !== 'year' && filter !== 'rating' && (
                                 <input className="input input-bordered join-item w-full"
                                        placeholder="Search"
                                        onChange={handleSearchChange}/>
                             )}
                         </div>
-                    </div>
-                    <select className="select select-bordered join-item" value={selectedFilter}
-                            onChange={handleFilterChange}>
-                        <option value="title">Title</option>
-                        <option value="author">Author</option>
-                        <option value="genre">Genre</option>
-                        <option value="year">Year</option>
-                        <option value="price">Price</option>
-                        <option value="rating">Rating</option>
-                    </select>
-                    <div className="indicator">
-                        <button className="btn join-item select-bordered" onClick={handleSearch}>Search</button>
+                        <select className="select select-bordered join-item w-full sm:w-auto" value={selectedFilter}
+                                onChange={handleFilterChange}>
+                            <option value="title">Title</option>
+                            <option value="author">Author</option>
+                            <option value="genre">Genre</option>
+                            <option value="year">Year</option>
+                            <option value="rating">Rating</option>
+                        </select>
+                        <div className="indicator w-full sm:w-auto">
+                            <button className="btn join-item select-bordered w-full sm:w-auto" onClick={handleSearch}>Search</button>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div className="container-with-book-cards w-full flex flex-wrap justify-start items-center align-stretch mb-8 p-8 overflow-y-auto mt-24">
+            <div className="container-with-book-cards w-full flex flex-wrap justify-start items-center align-stretch pl-8 pr-8 overflow-y-auto mt-20 h-full">
                 {filteredBooks.map((book) => (
                     <BookCard key={book.id} book={book} />
                 ))}

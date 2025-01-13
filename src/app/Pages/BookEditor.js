@@ -1,10 +1,16 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
-import { addBook, getBooks, getBookById, updateBook, deleteBook } from '../Components/api';
+import { useSearchParams } from 'next/navigation';
+import { addBook, getBooks, getBookById, updateBook, deleteBook, copyBook } from '../Components/api';
+import FormControl from '../Components/FormControl';
 
 const BookEditor = () => {
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
+
     const [books, setBooks] = useState([]);
-    const [selectedBookId, setSelectedBookId] = useState('');
+    const [selectedBookId, setSelectedBookId] = useState(id || '');
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
     const [genre, setGenre] = useState('');
@@ -13,12 +19,19 @@ const BookEditor = () => {
     const [rating, setRating] = useState('');
     const [status, setStatus] = useState('');
     const [image, setImage] = useState('');
+    const [isEditable, setIsEditable] = useState(false);
 
     useEffect(() => {
         getBooks()
             .then(setBooks)
             .catch(error => console.error('Error fetching books:', error));
     }, []);
+
+    useEffect(() => {
+        if (id) {
+            setSelectedBookId(id);
+        }
+    }, [id]);
 
     useEffect(() => {
         if (selectedBookId) {
@@ -48,6 +61,7 @@ const BookEditor = () => {
         setRating('');
         setStatus('');
         setImage('');
+        setIsEditable(false);
     };
 
     const handleSubmit = async (e) => {
@@ -63,7 +77,8 @@ const BookEditor = () => {
                 console.log('Book added successfully');
             }
             resetForm();
-            setSelectedBookId('');
+            const updatedBooks = await getBooks();
+            setBooks(updatedBooks);
         } catch (error) {
             console.error('Error saving book:', error);
         }
@@ -77,7 +92,8 @@ const BookEditor = () => {
                     console.log('Book deleted successfully');
                     resetForm();
                     setSelectedBookId('');
-                    setBooks(books.filter(book => book.id !== selectedBookId));
+                    const updatedBooks = await getBooks();
+                    setBooks(updatedBooks);
                 }
             } catch (error) {
                 console.error('Error deleting book:', error);
@@ -85,107 +101,105 @@ const BookEditor = () => {
         }
     };
 
+    const handleCopy = async () => {
+        try {
+            if (selectedBookId) {
+                await copyBook(selectedBookId);
+                console.log('Book copied successfully');
+                const updatedBooks = await getBooks();
+                setBooks(updatedBooks);
+            }
+        } catch (error) {
+            console.error('Error copying book:', error);
+        }
+    };
+
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Book Editor</h1>
-            <div className="mb-4">
-                <label className="block text-sm font-medium">Select Book to Edit</label>
-                <select
-                    value={selectedBookId}
-                    onChange={(e) => setSelectedBookId(e.target.value)}
-                    className="select select-bordered w-full"
-                >
-                    <option value="">New Book</option>
-                    {books.map(book => (
-                        <option key={book.id} value={book.id}>{book.title}</option>
-                    ))}
-                </select>
-            </div>
+            <h1 className="text-2xl font-bold mb-4">Book Details</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium">Title</label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="input input-bordered w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium">Author</label>
-                    <input
-                        type="text"
-                        value={author}
-                        onChange={(e) => setAuthor(e.target.value)}
-                        className="input input-bordered w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium">Genre</label>
-                    <input
-                        type="text"
-                        value={genre}
-                        onChange={(e) => setGenre(e.target.value)}
-                        className="input input-bordered w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium">Year</label>
-                    <input
-                        type="number"
-                        value={year}
-                        onChange={(e) => setYear(e.target.value)}
-                        className="input input-bordered w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium">Description</label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="textarea textarea-bordered w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium">Rating</label>
-                    <input
-                        type="number"
-                        value={rating}
-                        onChange={(e) => setRating(e.target.value)}
-                        className="input input-bordered w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium">Status</label>
-                    <input
-                        type="text"
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
-                        className="input input-bordered w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium">Image</label>
-                    <input
-                        type="text"
-                        value={image}
-                        onChange={(e) => setImage(e.target.value)}
-                        className="input input-bordered w-full"
-                        required
-                    />
-                </div>
-                <div className="flex space-x-4">
-                    <button type="submit" className="btn btn-primary">Save</button>
-                    {selectedBookId && (
-                        <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
-                    )}
+                <div className="flex flex-wrap w-full space-x-4">
+                    <div className="flex-1 flex flex-col items-center w-full">
+                        <label className="block text-sm font-medium mb-2"
+                               style={{fontFamily: 'Arial', fontWeight: 'bold'}}>Current Image</label>
+                        <div className="bg-purple-300 h-full object-contain flex justify-center items-center mb-4">
+                            <img alt="Book"
+                                 className="h-full border-4 border-gray-300"
+                                 src={image || "https://d827xgdhgqbnd.cloudfront.net/wp-content/uploads/2016/04/09121712/book-cover-placeholder.png"}
+                            />
+                        </div>
+                        <input
+                            type="text"
+                            value={image}
+                            onChange={(e) => setImage(e.target.value)}
+                            className="input input-bordered w-full"
+                            required
+                            disabled={!isEditable}
+                        />
+                    </div>
+                    <div className="flex-1 space-y-4">
+                        <FormControl
+                            label="Title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            required
+                            disabled={!isEditable}
+                        />
+                        <FormControl
+                            label="Author"
+                            value={author}
+                            onChange={(e) => setAuthor(e.target.value)}
+                            required
+                            disabled={!isEditable}
+                        />
+                        <FormControl
+                            label="Genre"
+                            value={genre}
+                            onChange={(e) => setGenre(e.target.value)}
+                            required
+                            disabled={!isEditable}
+                        />
+                        <FormControl
+                            label="Year"
+                            value={year}
+                            onChange={(e) => setYear(e.target.value)}
+                            type="number"
+                            required
+                            disabled={!isEditable}
+                        />
+                        <FormControl
+                            label="Description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            required
+                            disabled={!isEditable}
+                        />
+                        <FormControl
+                            label="Rating"
+                            value={rating}
+                            onChange={(e) => setRating(e.target.value)}
+                            type="number"
+                            required
+                            disabled={!isEditable}
+                        />
+                        <FormControl
+                            label="Status"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            required
+                            disabled={!isEditable}
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2 flex-shrink-0 items-center">
+                        <button type="button" className="btn btn-secondary" onClick={handleCopy}>Copy</button>
+                        <button type="submit" className="btn btn-primary" disabled={!isEditable}>Save</button>
+                        {selectedBookId && (
+                            <>
+                                <button type="button" className="btn btn-warning" onClick={() => setIsEditable(true)}>Edit</button>
+                                <button type="button" className="btn btn-danger" onClick={handleDelete}>Delete</button>
+                            </>
+                        )}
+                    </div>
                 </div>
             </form>
         </div>
